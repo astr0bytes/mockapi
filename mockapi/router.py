@@ -39,10 +39,16 @@ class Router:
         for regex, route in self._routes:
             if route.method == method and (m := regex.match(path)):
                 return Match(route, m.groupdict())
+        # HEAD falls back to the GET route, the server drops the body
+        if method == "HEAD":
+            return self.match("GET", path)
         return None
 
     def allowed_methods(self, path: str) -> list[str]:
-        return sorted({r.method for regex, r in self._routes if regex.match(path)})
+        methods = {r.method for regex, r in self._routes if regex.match(path)}
+        if "GET" in methods:
+            methods.add("HEAD")
+        return sorted(methods)
 
 
 def render_body(body, context: dict) -> object:
