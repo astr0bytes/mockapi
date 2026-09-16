@@ -1,6 +1,7 @@
 """HTTP server built on http.server."""
 
 import json
+import random
 import time
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -57,6 +58,10 @@ def make_handler(router: Router, cors: bool, default_headers: dict):
             route = match.route
             if route.delay_ms:
                 time.sleep(route.delay_ms / 1000)
+
+            if route.fail_rate and random.random() < route.fail_rate:
+                payload, ctype = serialize({"error": "simulated failure"})
+                return self._send(500, payload, ctype, {})
 
             if route.echo:
                 body = {

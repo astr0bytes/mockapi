@@ -38,5 +38,6 @@ Routes are listed under `"routes"` in the config file. See `examples/api.json`.
 | `headers` | `{}` | extra response headers |
 | `delay_ms` | `0` | wait before responding |
 | `echo` | `false` | return the received request as JSON |
+| `fail_rate` | `0` | probability (0 to 1) of answering with a 500 error instead |
 
 Headers set in the top-level `"headers"` object are added to every response.

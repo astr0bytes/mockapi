@@ -34,6 +34,7 @@
       "method": "GET",
       "path": "/slow",
       "delay_ms": 2000,
+      "fail_rate": 0.2,
       "body": {"message": "slow response"}
     },
     {

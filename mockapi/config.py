@@ -21,6 +21,7 @@ class Route:
     headers: dict = field(default_factory=dict)
     delay_ms: int = 0
     echo: bool = False
+    fail_rate: float = 0.0
 
 
 @dataclass
@@ -44,6 +45,10 @@ def _parse_route(index: int, raw: dict, base_dir: Path) -> Route:
         body_file = str((base_dir / body_file).resolve())
         if not Path(body_file).is_file():
             raise ConfigError(f"{where}: file not found {body_file}")
+
+    fail_rate = raw.get("fail_rate", 0)
+    if not isinstance(fail_rate, (int, float)) or not 0 <= fail_rate <= 1:
+        raise ConfigError(f"{where}: fail_rate must be between 0 and 1")
 
     known = set(Route.__dataclass_fields__) - {"method"}
     unknown = set(raw) - known - {"method"}
