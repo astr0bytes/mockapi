@@ -17,6 +17,7 @@ Requires Python 3.11+, no third-party dependencies.
 ```
 python main.py examples/api.json --check
 python main.py examples/api.json -p 8080 --cors
+python main.py examples/api.json --watch
 ```
 
 ```
@@ -41,3 +42,6 @@ Routes are listed under `"routes"` in the config file. See `examples/api.json`.
 | `fail_rate` | `0` | probability (0 to 1) of answering with a 500 error instead |
 
 Headers set in the top-level `"headers"` object are added to every response.
+
+With `--watch`, the file is reloaded on the first request after it changes. If the new
+version is invalid, the error is printed and the previous routes keep being served.

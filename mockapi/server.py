@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qsl, urlsplit
 
-from mockapi.router import Router, render_body, serialize
+from mockapi.router import render_body, serialize
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -17,7 +17,7 @@ CORS_HEADERS = {
 }
 
 
-def make_handler(router: Router, cors: bool, default_headers: dict):
+def make_handler(source, cors: bool):
     class MockHandler(BaseHTTPRequestHandler):
         server_version = "mockapi"
 
@@ -33,7 +33,7 @@ def make_handler(router: Router, cors: bool, default_headers: dict):
             self.send_response(status)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(payload)))
-            for name, value in {**default_headers, **(CORS_HEADERS if cors else {}), **headers}.items():
+            for name, value in {**self.default_headers, **(CORS_HEADERS if cors else {}), **headers}.items():
                 self.send_header(name, value)
             self.end_headers()
             if self.command != "HEAD":
@@ -41,6 +41,7 @@ def make_handler(router: Router, cors: bool, default_headers: dict):
 
         def _handle(self):
             url = urlsplit(self.path)
+            router, self.default_headers = source.current()
             request_body = self._read_body()
 
             if cors and self.command == "OPTIONS":
@@ -92,8 +93,8 @@ def make_handler(router: Router, cors: bool, default_headers: dict):
     return MockHandler
 
 
-def serve(router: Router, host: str, port: int, cors: bool = False, default_headers: dict | None = None):
-    handler = make_handler(router, cors, default_headers or {})
+def serve(source, host: str, port: int, cors: bool = False):
+    handler = make_handler(source, cors)
     with ThreadingHTTPServer((host, port), handler) as httpd:
         print(f"mockapi listening on http://{host}:{port} (Ctrl+C to stop)")
         try:
