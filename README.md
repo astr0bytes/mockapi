@@ -25,6 +25,19 @@ curl localhost:8080/users/7?lang=fr
 curl -X POST localhost:8080/echo/test -d '{"a": 1}'
 ```
 
+## Docker
+
+```
+docker build -t mockapi .
+docker run --rm -p 8080:8080 mockapi
+```
+
+To serve your own routes, mount the directory holding the config file:
+
+```
+docker run --rm -p 8080:8080 -v "$PWD/mocks:/mocks:ro" mockapi /mocks/api.json --host 0.0.0.0 --watch
+```
+
 ## Routes
 
 Routes are listed under `"routes"` in the config file. See `examples/api.json`.
